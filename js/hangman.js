@@ -131,7 +131,6 @@ function guessedWord() {
   for (i=0; i<answer.length; i++){
     if (guessed.indexOf(answer[i].toLowerCase()) >= 0){
       wordStatus += answer[i].toLowerCase();
-      console.log(answer[i].toLowerCase())
     }else{
       if (answer[i] == ' '){
         wordStatus += '&nbsp;'
@@ -213,6 +212,9 @@ const SpeechConfirm =
 const recognition = new SpeechRecognition();
 const confirm = new SpeechConfirm();
 
+recognition.lang = 'it';
+confirm.lang = 'it';
+
 //console results
 recognition.onstart = () => {
   console.log("Recogniton activated.");
@@ -248,7 +250,6 @@ recognition.onend = () => {
   console.log("Recognition deactivated");
   if (letterapronunciata != '' || letterapronunciata != undefined){
     tts("La lettera che vuoi digitare è:" + letterapronunciata)
-    //confermapronunciata = 'no'
     setTimeout("startconfirm()", 2000);
 
   }else{
@@ -276,11 +277,11 @@ confirm.onresult = (event) => {
   const transcript = event.results[current][0].transcript;
 
   confermapronunciata = transcript.replace(",", "")
-  confermapronunciata = confermapronunciata.toLowerCase();
+  confermapronunciata = confermapronunciata.toLowerCase().substring(0,2);
 
-  if (confermapronunciata == 'no' || confermapronunciata != 'sì'){
+  if (confermapronunciata == 'no'){
     console.log("Hai detto no, la tua richiesta è stata eliminata")
-  }else if (confermapronunciata == 'sì' || confermapronunciata == 'se' || confermapronunciata == 'si'  ){
+  }else if (confermapronunciata == 'sì' || confermapronunciata == 'se' || confermapronunciata == 'si' || confermapronunciata.substring(0,3) == 'see'  ){
     document.getElementById(letterapronunciata.toLowerCase()).click()
   }
 };
