@@ -10,19 +10,20 @@
     }
 
     $('#hangmancontainer').append(
-			' <h1 class="text-center">Hangman</h1>'+
-			'<div class="float-right">Tentativi sbagliati: <span id="mistakes">0</span> of <span id="maxWrong"></span></div>' +
-			'<div class="text-center">'+
-			  '<img id="hangmanPic" src="images/0.jpg" alt="">'+
-			  '<p id="clueSpotlight"></p>'+
-			  '<p id="wordSpotlight">The word to be guessed goes here</p>'+
-			  '<div id="keyboard"></div>'+
-              '<input type="button" class="btnStyle" id="btnHangmanBack" value="Indietro"></input>'+
-			  '<button class="btnStyle" onClick="reset()">Next</button><br>'+
-              '<div><img src="images/voice2.png" id="btnVoice" class="btnVoice"></img></div>'+
-              '<h2 className="content1"></h2>'+
-			'</div>'
-		)
+        '<h1 class="text-center">Hangman</h1>'+
+        '<input type="button" class="btnStyle" onClick = "audioMode()" id="btnAudioOn" value="Audio On">'+
+        '<div class="float-right">Tentativi sbagliati: <span id="mistakes">0</span> of <span id="maxWrong"></span></div>' +
+        '<div class="text-center">'+
+        '<img id="hangmanPic" src="images/0.jpg" alt="">'+
+        '<p id="clueSpotlight"></p>'+
+        '<p id="wordSpotlight">The word to be guessed goes here</p>'+
+        '<div id="keyboard"></div>'+
+        '<input type="button" class="btnStyle" id="btnHangmanBack" value="Indietro">'+
+        '<button class="btnStyle" onClick="reset(), remindClue()">Next</button><br>'+
+        '<div><img src="images/voice2.png" id="btnVoice" class="btnVoice"></div>'+
+        '<h2 className="content1"></h2>'+
+        '</div>'
+    )
   
     $('#btnHangmanBack').click(function(){
       reset();
@@ -51,11 +52,10 @@
 
     loadClues();
     randomWord();
+    tts(clue)
     generateButtons();
     guessedWord();
   }
-
-
 
 })(jQuery)
 
@@ -125,7 +125,6 @@ function handleGuess(chosenLetter) {
 }
 
 function guessedWord() {
-
   //wordStatus = answer.split('').map(letter => (guessed.indexOf(letter) >= 0 ? letter : " _ ")).join('');
   wordStatus = '';
   for (i=0; i<answer.length; i++){
@@ -143,6 +142,7 @@ function guessedWord() {
 
   document.getElementById('wordSpotlight').innerHTML = wordStatus;
   document.getElementById('clueSpotlight').innerHTML = clueStatus;
+
 }
 
 function updateMistakes() {
@@ -154,19 +154,23 @@ function updateHangmanPicture() {
 }
 
 function checkIfGameWon() {
+  wordStatus = wordStatus.replace(/\s/g, '');
   if (wordStatus.replace('&nbsp;', '') === answer.replace(/\s/g, '').toLowerCase()) {
-    //document.getElementById('keyboard').innerHTML = 'You Won!!!';
     document.getElementById('hangmanPic').src = 'images/win.png';
     document.getElementById('hangmanPic').style.opacity ='0.5';
-    var audio = new Audio('sounds/nextlevel.wav');
-    audio.play();
+    if (audioOn == true) {
+      var audio = new Audio('sounds/nextlevel.wav');
+      audio.play();
+    }
     for (i=97;i<123; i++) {
       let characterCode = String.fromCharCode(i)
       document.getElementById(characterCode).disabled = true;
     }
   }else{
-    var audio = new Audio('sounds/win.wav');
-    audio.play();
+    if (audioOn == true){
+      var audio = new Audio('sounds/win.wav');
+      audio.play();
+    }
   }
 }
 
@@ -174,22 +178,26 @@ function checkIfGameLost() {
   if (mistakes === maxWrong) {
     document.getElementById('wordSpotlight').innerHTML = 'La risposta era: ' + answer;
     document.getElementById('keyboard').innerHTML = 'Hai perso!!!';
-    var audio = new Audio('sounds/loselevel.wav');
-    audio.play();
+    if (audioOn == true) {
+      var audio = new Audio('sounds/loselevel.wav');
+      audio.play();
+    }
   }else{
-    var audio = new Audio('sounds/lose.wav');
-    audio.play();
+    if (audioOn == true){
+      var audio = new Audio('sounds/lose.wav');
+      audio.play();
+    }
+    setTimeout(remindError(),100)
+
   }
 }
 
-var finalText;
+// PARTE DI CODICE RELATIVA AL TEXT TO SPEECH --------------------------------------------------------->
 
-//must run once before the voice actually change
 window.onload = function () {
   speak("  ");
 };
 
-//speaking function
 const speak = (sentance) => {
   const tts = new SpeechSynthesisUtterance(sentance);
   const voices = speechSynthesis.getVoices();
@@ -200,15 +208,16 @@ const speak = (sentance) => {
   window.speechSynthesis.speak(tts);
 };
 
-const content1 = document.querySelector(".content1");
+var audioOn = true;
 
-var letterapronunciata = ''
-var confermapronunciata = ''
+var letterapronunciata = '';
+var confermapronunciata = '';
 
 const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
 const SpeechConfirm =
     window.SpeechRecognition || window.webkitSpeechRecognition;
+
 const recognition = new SpeechRecognition();
 const confirm = new SpeechConfirm();
 
@@ -225,48 +234,48 @@ recognition.onresult = (event) => {
   const transcript = event.results[current][0].transcript;
 
   letterapronunciata = transcript.replace(",", "")
+  letterapronunciata = letterapronunciata.replace(/\s/g, '').toLowerCase()
 
-  switch(letterapronunciata){
-    case 'esse':
-      letterapronunciata = 's';
-    case 'effe':
-      letterapronunciata = 'f';
-    case 'emme':
-      letterapronunciata = 'm';
-    case 'elle':
-      letterapronunciata = 'l';
-    case 'erre':
-      letterapronunciata = 'r';
-    case 'enne':
-      letterapronunciata = 'n';
+  if (letterapronunciata == answer.replace(/\s/g, '').toLowerCase()){
+    console.log('hai indovinato')
+  }else {
+
+    switch (letterapronunciata) {
+      case 'esse':
+        letterapronunciata = 's';
+      case 'effe':
+        letterapronunciata = 'f';
+      case 'emme':
+        letterapronunciata = 'm';
+      case 'elle':
+        letterapronunciata = 'l';
+      case 'erre':
+        letterapronunciata = 'r';
+      case 'enne':
+        letterapronunciata = 'n';
+    }
+
+    letterapronunciata = letterapronunciata[0].toLowerCase();
+
+    console.log(letterapronunciata)
   }
-
-  letterapronunciata = letterapronunciata[0].toLowerCase();
-
-  console.log(letterapronunciata)
 };
 
 recognition.onend = () => {
   console.log("Recognition deactivated");
-  if (letterapronunciata != '' || letterapronunciata != undefined){
+  if (letterapronunciata != '' & letterapronunciata != undefined & letterapronunciata != answer.replace(/\s/g, '').toLowerCase()){
     tts("La lettera che vuoi digitare è:" + letterapronunciata)
     setTimeout("startconfirm()", 2000);
-
+  }else if(letterapronunciata == answer.replace(/\s/g, '').toLowerCase()){
+    for (i=0; i<answer.length; i++){
+      guessed.indexOf(letterapronunciata[i]) === -1 ? guessed.push(letterapronunciata[i]) : null;
+    }
+    guessedWord()
+    checkIfGameWon()
   }else{
     tts("Non ho capito, puoi ripetere?")
   }
 };
-
-async function tts(message) {
-  const speech = new SpeechSynthesisUtterance();
-  const voices = speechSynthesis.getVoices();
-  speech.voice = voices[1];
-  speech.volume = 2;
-  speech.rate = 0.9;
-  speech.pitch = 0.2; //not so deep
-  speech.text = message;
-  window.speechSynthesis.speak(speech);
-}
 
 confirm.onstart= () => {
   console.log("Confirm activated.");
@@ -288,8 +297,42 @@ confirm.onresult = (event) => {
 
 confirm.onend = () => {
   console.log("Confirm deactivated");
+  //recognition.start()
 };
 
 function startconfirm(){
   confirm.start()
+}
+
+async function tts(message) {
+  const speech = new SpeechSynthesisUtterance();
+  const voices = speechSynthesis.getVoices();
+  speech.voice = voices[1];
+  speech.volume = 2;
+  speech.rate = 0.9;
+  speech.pitch = 0.2; //not so deep
+  speech.text = message;
+  window.speechSynthesis.speak(speech);
+}
+
+function audioMode(){
+  if (audioOn == true){
+    audioOn = false;
+    document.getElementById('btnAudioOn').value = 'Audio Off'
+  }else{
+    audioOn = true;
+    document.getElementById('btnAudioOn').value = 'Audio On'
+  }
+}
+
+function remindError(){
+  if (mistakes < 5){
+    tts("Puoi fare ancora " + (6-parseInt(mistakes)) + " errori")
+  }else{
+    tts("Puoi fare ancora " + (6-parseInt(mistakes)) + " errore")
+  }
+}
+
+function remindClue(){
+  tts(clue);
 }

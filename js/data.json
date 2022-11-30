@@ -297,13 +297,23 @@
             "answer": "lim"
         },
         {
-            "clue": "Not a one ___ motor, but a three ___ motor",
-            "answer": "phase"
+            "clue": "Pappagallo",
+            "answer": "pippo"
         },
         {
-            "clue": "Chi dipinse il celebre quadro 'La primavera'?",
-            "answer": "sandro botticelli"
+            "clue": "Pastore del centr'asia",
+            "answer": "caucasico"
         },
+        {
+            "clue": "Parco nazionale in val d'Aosta",
+            "answer": "gran paradiso"
+        },
+        {
+            "clue": "Dipinse il celebre quadro 'La primavera'",
+            "answer": "sandro botticelli"
+        }
+        ],
+    "hangman2" : [
         {
             "clue": "Created from a separation of charge",
             "answer": "capacitance"
@@ -368,5 +378,5 @@
             "clue": "Offset current control (abbr.)",
             "answer": "Occ"
         }
-        ]
+    ]
 }]
