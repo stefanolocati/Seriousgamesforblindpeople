@@ -292,28 +292,7 @@
 }]}
 ],
 
-    "hangman" : [{
-            "clue": "Laboratorio di Informatica Musicale",
-            "answer": "lim"
-        },
-        {
-            "clue": "Pappagallo",
-            "answer": "pippo"
-        },
-        {
-            "clue": "Pastore del centr'asia",
-            "answer": "caucasico"
-        },
-        {
-            "clue": "Parco nazionale in val d'Aosta",
-            "answer": "gran paradiso"
-        },
-        {
-            "clue": "Dipinse il celebre quadro 'La primavera'",
-            "answer": "sandro botticelli"
-        }
-        ],
-    "hangman2" : [
+    "hangman" : [
         {
             "clue": "Created from a separation of charge",
             "answer": "capacitance"
