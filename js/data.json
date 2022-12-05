@@ -292,7 +292,56 @@
 }]}
 ],
 
-    "hangman" : [
+    "hangman" : [{
+            "clue": "Laboratorio di Informatica Musicale",
+            "answer": "lim"
+        },
+        {
+            "clue": "Pappagallo",
+            "answer": "pippo"
+        },
+        {
+            "clue": "Pastore dell'Asia Centrale",
+            "answer": "caucasico"
+        },
+        {
+            "clue": "Irene ne ha due enormi",
+            "answer": "tettone"
+        },
+        {
+            "clue": "Schiaccia fortissimo",
+            "answer": "pata"
+        },
+        {
+            "clue": "Vecchia fuori, giovane dentro",
+            "answer": "ele"
+        },
+        {
+            "clue": "é un porco",
+            "answer": "paolo di castellammare"
+        },
+        {
+            "clue": "la ragazza più tonta di petosino",
+            "answer": "barabani"
+        },
+        {
+            "clue": "sto venendo e...",
+            "answer": "quindi"
+        },
+        {
+            "clue": "il tipo sul lungomare le ha inventate",
+            "answer": "pettorine gialle"
+        },
+        {
+            "clue": "Parco nazionale in val d'Aosta",
+            "answer": "gran paradiso"
+        },
+        {
+            "clue": "Dipinse il celebre quadro 'La primavera'",
+            "answer": "sandro botticelli"
+        }
+        ],
+    "hangman2" : [
         {
             "clue": "Created from a separation of charge",
             "answer": "capacitance"

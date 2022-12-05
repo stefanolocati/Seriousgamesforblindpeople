@@ -11,7 +11,9 @@
 
     $('#hangmancontainer').append(
         '<h1 class="text-center">Hangman</h1>'+
-        '<input type="button" class="btnStyle" onClick = "audioMode()" id="btnAudioOn" value="Audio On">'+
+        '<input type="image" class="btnStyle" id="btnMenu" src="images/settings.png"><br>'+
+        '<input type="image" class="btnStyle" onClick = "audioMode()" id="btnAudioOn" src="images/soundon.png" style="display:none">'+
+        '<input type="image" class="btnStyle" onClick = "blindMode()" id="btnBlindMode" src="images/blindoff.png" style="display:none">'+
         '<div class="float-right">Tentativi sbagliati: <span id="mistakes">0</span> of <span id="maxWrong"></span></div>' +
         '<div class="text-center">'+
         '<img id="hangmanPic" src="images/0.jpg" alt="">'+
@@ -19,8 +21,8 @@
         '<p id="wordSpotlight">The word to be guessed goes here</p>'+
         '<div id="keyboard"></div>'+
         '<input type="button" class="btnStyle" id="btnHangmanBack" value="Indietro">'+
-        '<button class="btnStyle" onClick="reset(), remindClue()">Next</button><br>'+
-        '<div><img src="images/voice2.png" id="btnVoice" class="btnVoice"></div>'+
+        '<button class="btnStyle" onClick="reset(), remindClue()" id="btnNext">Next</button><br>'+
+        '<input type="image" src="images/voice2.png" id="btnVoice" class="btnVoice" disabled style="display:none">'+
         '<h2 className="content1"></h2>'+
         '</div>'
     )
@@ -34,30 +36,79 @@
       $('body').append('<div id="hangmancontainer" hidden></div>')
       $('#hangmancontainer').hide();
       $('#divIntro').show()
-      //window.location.reload()
       hangmanAnswers = []
       hangmanClues = []
+      settingsMode = 1;
+      blindOn = false;
+      audioOn = true;
     });
 
     $('#btnVoice').click(function(){
+      recognition.abort();
+      confirm.abort();
       recognition.start();
+    });
+
+    $('#btnMenu').click(function(){
+      if (settingsMode == 0){
+        settingsMode = 1;
+      }else{
+        settingsMode = 0;
+      }
+      /*if (settingsMode == 0){
+        $('#btnAudioOn').show();
+        $('#btnBlindMode').show();
+      }else{
+        $('#btnAudioOn').hide();
+        $('#btnBlindMode').hide();
+      }*/
+      $('#btnAudioOn').toggle(400);
+      $('#btnBlindMode').toggle(400);
+    });
+
+    $('#btnBlindMode').click(function(){
+      if (blindOn == true){
+        $('#btnVoice').show();
+      }else{
+        $('#btnVoice').hide();
+      }
+    });
+
+    $('#btnNext').click(function(){
+      if (blindOn == true){
+        $('#btnVoice').removeAttribute("disabled");
+      }
     });
 
     $(document).keyup(function (event) {
         char = String.fromCharCode(event.keyCode).toLowerCase()
-        handleGuess(char)
+        if (document.getElementById(char).getAttribute('disabled') != 'true'){
+          handleGuess(char)
+        }
     });
 
     document.getElementById('maxWrong').innerHTML = maxWrong;
 
     loadClues();
     randomWord();
-    tts(clue)
     generateButtons();
     guessedWord();
+    remindClue();
   }
 
+  window.addEventListener('click', function(e){
+    if (document.getElementById('btnMenu').contains(e.target)!=true){
+      if (document.getElementById('btnAudioOn').contains(e.target)!=true && document.getElementById('btnBlindMode').contains(e.target)!=true) {
+        settingsMode = 1;
+        $('#btnAudioOn').hide();
+        $('#btnBlindMode').hide();
+      }
+    }
+  });
+
 })(jQuery)
+
+var settingsMode = 1;
 
 var hangmanAnswers = []
 var hangmanClues = []
@@ -69,6 +120,8 @@ let guessed = [];
 let wordStatus = null;
 
 function reset() {
+  letterapronunciata = '';
+  confermapronunciata = '';
   mistakes = 0;
   guessed = [];
   document.getElementById('hangmanPic').src = 'images/0.jpg';
@@ -142,7 +195,6 @@ function guessedWord() {
 
   document.getElementById('wordSpotlight').innerHTML = wordStatus;
   document.getElementById('clueSpotlight').innerHTML = clueStatus;
-
 }
 
 function updateMistakes() {
@@ -161,6 +213,7 @@ function checkIfGameWon() {
     if (audioOn == true) {
       var audio = new Audio('sounds/nextlevel.wav');
       audio.play();
+      document.getElementById('btnVoice').setAttribute('disabled', true);
     }
     for (i=97;i<123; i++) {
       let characterCode = String.fromCharCode(i)
@@ -181,13 +234,14 @@ function checkIfGameLost() {
     if (audioOn == true) {
       var audio = new Audio('sounds/loselevel.wav');
       audio.play();
+      document.getElementById('btnVoice').setAttribute('disabled', true)
     }
   }else{
     if (audioOn == true){
       var audio = new Audio('sounds/lose.wav');
       audio.play();
     }
-    setTimeout(remindError(),100)
+    setTimeout(remindError(),90)
 
   }
 }
@@ -209,6 +263,7 @@ const speak = (sentance) => {
 };
 
 var audioOn = true;
+var blindOn = false;
 
 var letterapronunciata = '';
 var confermapronunciata = '';
@@ -235,6 +290,7 @@ recognition.onresult = (event) => {
 
   letterapronunciata = transcript.replace(",", "")
   letterapronunciata = letterapronunciata.replace(/\s/g, '').toLowerCase()
+  letterapronunciata = letterapronunciata.replace(/\./g, '').toLowerCase()
 
   if (letterapronunciata == answer.replace(/\s/g, '').toLowerCase()){
     console.log('hai indovinato')
@@ -297,7 +353,6 @@ confirm.onresult = (event) => {
 
 confirm.onend = () => {
   console.log("Confirm deactivated");
-  //recognition.start()
 };
 
 function startconfirm(){
@@ -318,21 +373,38 @@ async function tts(message) {
 function audioMode(){
   if (audioOn == true){
     audioOn = false;
-    document.getElementById('btnAudioOn').value = 'Audio Off'
+    document.getElementById('btnAudioOn').src = 'images/soundoff.png'
   }else{
     audioOn = true;
-    document.getElementById('btnAudioOn').value = 'Audio On'
+    document.getElementById('btnAudioOn').src = 'images/soundon.png'
+  }
+}
+
+function blindMode(){
+  if (blindOn == true){
+    blindOn = false;
+    document.getElementById('btnBlindMode').src = 'images/blindoff.png'
+    document.getElementById('btnVoice').setAttribute('disabled', true)
+  }else{
+    blindOn = true;
+    document.getElementById('btnBlindMode').src = 'images/blindon.png'
+    document.getElementById('btnVoice').removeAttribute("disabled");
+    remindClue();
   }
 }
 
 function remindError(){
-  if (mistakes < 5){
-    tts("Puoi fare ancora " + (6-parseInt(mistakes)) + " errori")
-  }else{
-    tts("Puoi fare ancora " + (6-parseInt(mistakes)) + " errore")
+  if (blindOn == true) {
+    if (mistakes < 5) {
+      tts("Puoi fare ancora " + (6 - parseInt(mistakes)) + " errori")
+    } else {
+      tts("Puoi fare ancora " + (6 - parseInt(mistakes)) + " errore")
+    }
   }
 }
 
 function remindClue(){
-  tts(clue);
+  if (blindOn == true){
+    tts(clue);
+  }
 }

@@ -247,10 +247,6 @@ body {
         margin-bottom: 15px;
     }
 
-    #wordSpotlight{
-        text-transform: uppercase;
-    }
-
     .cluePar{
         background: rgb(0, 94, 94);
         color: white;
@@ -323,7 +319,7 @@ body {
     }
 
 .btnVoice{
-    height: 40px;
+    height: 30px;
     display: inline-block;
     padding: 15px 25px;
     font-size: 20px;
@@ -348,4 +344,32 @@ body {
     background-color: rgb(0, 61, 61);
     box-shadow: 0 5px #666;
     transform: translateY(4px);
+}
+
+.btnVoice:disabled{
+    background-color: rgb(0, 94, 94);
+    box-shadow: 0 5px #666;
+}
+
+#btnMenu{
+    width: 30px;
+    height: 30px;
+}
+
+#wordSpotlight{
+    text-transform: uppercase;
+}
+
+#hangmanPic{
+    height: 270px;
+}
+
+#btnAudioOn{
+    width: 30px;
+    height: 30px;
+}
+
+#btnBlindMode{
+    width: 30px;
+    height: 30px;
 }
