@@ -75,9 +75,7 @@
     });
 
     $('#btnNext').click(function(){
-      if (blindOn == true){
-        $('#btnVoice').removeAttribute("disabled");
-      }
+        $('#btnVoice').removeAttr("disabled");
     });
 
     $(document).keyup(function (event) {
