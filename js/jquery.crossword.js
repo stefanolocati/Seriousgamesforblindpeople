@@ -326,12 +326,21 @@
 					};	
 					
 					// Put entry number in first 'light' of each entry, skipping it if already present
-					for (var i=1, p = entryCount; i < p; ++i) {
+					//for (var i=0, p = entryCount; i <= p; ++i) {
+					for (var i=0; i<=entryCount; i++){
 						$groupedLights = $('.entry-' + i);
-						if(!$('.entry-' + i +':eq(0) span').length){
-							$groupedLights.eq(0)
-								.append('<span>' + puzz.data[i].position + '</span>');
+
+						//if(!$('.entry-' + i +':eq(0) span').length){
+						if (i>0 && i<entryCount) {
+							if (puzz.data[i].position != puzz.data[i-1].position) {
+								$groupedLights.eq(0)
+									.append('<span id="span' + i + '">' +i+  '</span>');
+							} else {
+								$groupedLights.eq(0)
+									.append('<span id="span' + i + '">' + (parseInt(puzz.data[i].position)) + '</span>');
+							}
 						}
+
 					}	
 					
 					//util.highlightEntry();
@@ -403,7 +412,9 @@
 					
 					for (i=0; i<entryArray.length; i++){
 						activePosition = entryArray[i];
+						console.log(entryArray)
 						valToCheck = puzz.data[activePosition].answer.toLowerCase();
+
 						currVal = $('.position-' + activePosition + ' input')
 						.map(function() {
 					  		return $(this)

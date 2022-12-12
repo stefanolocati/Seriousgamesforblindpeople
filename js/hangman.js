@@ -11,12 +11,12 @@
 
     $('#hangmancontainer').append(
         '<h1 class="text-center">Hangman</h1>'+
-        '<input type="image" class="btnStyle" id="btnMenu" src="images/settings.png"><br>'+
-        '<input type="image" class="btnStyle" onClick = "audioMode()" id="btnAudioOn" src="images/soundon.png" style="display:none">'+
-        '<input type="image" class="btnStyle" onClick = "blindMode()" id="btnBlindMode" src="images/blindoff.png" style="display:none">'+
+        '<input type="image" class="btnStyle" id="btnMenu" src="images/settings.png" alt="Impostazioni"><br>'+
+        '<input type="image" class="btnStyle" onClick = "audioMode()" id="btnAudioOn" src="images/soundon.png" style="display:none" alt="Suono On/Off">'+
+        '<input type="image" class="btnStyle" onClick = "blindMode()" id="btnBlindMode" src="images/blindoff.png" style="display:none" alt="Modalità non vedenti">'+
         '<div class="float-right">Tentativi sbagliati: <span id="mistakes">0</span> of <span id="maxWrong"></span></div>' +
         '<div class="text-center">'+
-        '<img id="hangmanPic" src="images/0.jpg" alt="">'+
+        '<img id="hangmanPic" src="images/0.jpg" alt="Immagine dell\'impiccato">'+
         '<p id="clueSpotlight"></p>'+
         '<p id="wordSpotlight">The word to be guessed goes here</p>'+
         '<div id="keyboard"></div>'+
@@ -69,6 +69,10 @@
     $('#btnBlindMode').click(function(){
       if (blindOn == true){
         $('#btnVoice').show();
+        wordStatus = wordStatus.replace(/\s/g, '');
+        if (mistakes === maxWrong || wordStatus.replace('&nbsp;', '') === answer.replace(/\s/g, '').toLowerCase()){
+          $('#btnVoice').attr('disabled', true)
+        }
       }else{
         $('#btnVoice').hide();
       }
