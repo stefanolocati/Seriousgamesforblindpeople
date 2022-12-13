@@ -12,17 +12,16 @@
     $('#hangmancontainer').append(
         '<h1 class="text-center">Hangman</h1>'+
         '<input type="image" class="btnStyle" id="btnMenu" src="images/settings.png" alt="Impostazioni"><br>'+
-        '<input type="image" class="btnStyle" onClick = "audioMode()" id="btnAudioOn" src="images/soundon.png" style="display:none" alt="Suono On/Off">'+
+        '<input type="image" class="btnStyle" onClick = "audioMode()" id="btnAudioOn" src="images/soundon.png" style="display:none" alt="Disattiva suono">'+
         '<input type="image" class="btnStyle" onClick = "blindMode()" id="btnBlindMode" src="images/blindoff.png" style="display:none" alt="Modalità non vedenti">'+
         '<div class="float-right">Tentativi sbagliati: <span id="mistakes">0</span> of <span id="maxWrong"></span></div>' +
         '<div class="text-center">'+
         '<img id="hangmanPic" src="images/0.jpg" alt="Immagine dell\'impiccato">'+
-        '<p id="clueSpotlight"></p>'+
+        '<p id="clueSpotlight" alt=""></p>'+
         '<p id="wordSpotlight">The word to be guessed goes here</p>'+
         '<div id="keyboard"></div>'+
         '<input type="button" class="btnStyle" id="btnHangmanBack" value="Indietro">'+
         '<button class="btnStyle" onClick="reset(), remindClue()" id="btnNext">Next</button><br>'+
-        '<input type="image" src="images/voice2.png" id="btnVoice" class="btnVoice" disabled style="display:none">'+
         '<h2 className="content1"></h2>'+
         '</div>'
     )
@@ -43,11 +42,10 @@
       audioOn = true;
     });
 
-    $('#btnVoice').click(function(){
-      recognition.abort();
-      confirm.abort();
-      recognition.start();
-    });
+    $('#btnBlindMode').click(function(){
+      $('#keyboard').toggle()
+      $('#clueSpotlight').attr('alt', clue)
+    })
 
     $('#btnMenu').click(function(){
       if (settingsMode == 0){
@@ -55,31 +53,8 @@
       }else{
         settingsMode = 0;
       }
-      /*if (settingsMode == 0){
-        $('#btnAudioOn').show();
-        $('#btnBlindMode').show();
-      }else{
-        $('#btnAudioOn').hide();
-        $('#btnBlindMode').hide();
-      }*/
       $('#btnAudioOn').toggle(400);
       $('#btnBlindMode').toggle(400);
-    });
-
-    $('#btnBlindMode').click(function(){
-      if (blindOn == true){
-        $('#btnVoice').show();
-        wordStatus = wordStatus.replace(/\s/g, '');
-        if (mistakes === maxWrong || wordStatus.replace('&nbsp;', '') === answer.replace(/\s/g, '').toLowerCase()){
-          $('#btnVoice').attr('disabled', true)
-        }
-      }else{
-        $('#btnVoice').hide();
-      }
-    });
-
-    $('#btnNext').click(function(){
-        $('#btnVoice').removeAttr("disabled");
     });
 
     $(document).keyup(function (event) {
@@ -95,7 +70,6 @@
     randomWord();
     generateButtons();
     guessedWord();
-    remindClue();
   }
 
   window.addEventListener('click', function(e){
@@ -122,8 +96,6 @@ let guessed = [];
 let wordStatus = null;
 
 function reset() {
-  letterapronunciata = '';
-  confermapronunciata = '';
   mistakes = 0;
   guessed = [];
   document.getElementById('hangmanPic').src = 'images/0.jpg';
@@ -215,7 +187,6 @@ function checkIfGameWon() {
     if (audioOn == true) {
       var audio = new Audio('sounds/nextlevel.wav');
       audio.play();
-      document.getElementById('btnVoice').setAttribute('disabled', true);
     }
     for (i=97;i<123; i++) {
       let characterCode = String.fromCharCode(i)
@@ -236,7 +207,6 @@ function checkIfGameLost() {
     if (audioOn == true) {
       var audio = new Audio('sounds/loselevel.wav');
       audio.play();
-      document.getElementById('btnVoice').setAttribute('disabled', true)
     }
   }else{
     if (audioOn == true){
@@ -255,6 +225,7 @@ window.onload = function () {
 };
 
 const speak = (sentance) => {
+
   const tts = new SpeechSynthesisUtterance(sentance);
   const voices = speechSynthesis.getVoices();
   tts.voice = voices[1]; //changing the voice
@@ -267,107 +238,13 @@ const speak = (sentance) => {
 var audioOn = true;
 var blindOn = false;
 
-var letterapronunciata = '';
-var confermapronunciata = '';
-
-const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-const SpeechConfirm =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-
-const recognition = new SpeechRecognition();
-const confirm = new SpeechConfirm();
-
-recognition.lang = 'it';
-confirm.lang = 'it';
-
-//console results
-recognition.onstart = () => {
-  console.log("Recogniton activated.");
-};
-
-recognition.onresult = (event) => {
-  const current = event.resultIndex;
-  const transcript = event.results[current][0].transcript;
-
-  letterapronunciata = transcript.replace(",", "")
-  letterapronunciata = letterapronunciata.replace(/\s/g, '').toLowerCase()
-  letterapronunciata = letterapronunciata.replace(/\./g, '').toLowerCase()
-
-  if (letterapronunciata == answer.replace(/\s/g, '').toLowerCase()){
-    console.log('hai indovinato')
-  }else {
-
-    switch (letterapronunciata) {
-      case 'esse':
-        letterapronunciata = 's';
-      case 'effe':
-        letterapronunciata = 'f';
-      case 'emme':
-        letterapronunciata = 'm';
-      case 'elle':
-        letterapronunciata = 'l';
-      case 'erre':
-        letterapronunciata = 'r';
-      case 'enne':
-        letterapronunciata = 'n';
-    }
-
-    letterapronunciata = letterapronunciata[0].toLowerCase();
-
-    console.log(letterapronunciata)
-  }
-};
-
-recognition.onend = () => {
-  console.log("Recognition deactivated");
-  if (letterapronunciata != '' & letterapronunciata != undefined & letterapronunciata != answer.replace(/\s/g, '').toLowerCase()){
-    tts("La lettera che vuoi digitare è:" + letterapronunciata)
-    setTimeout("startconfirm()", 2000);
-  }else if(letterapronunciata == answer.replace(/\s/g, '').toLowerCase()){
-    for (i=0; i<answer.length; i++){
-      guessed.indexOf(letterapronunciata[i]) === -1 ? guessed.push(letterapronunciata[i]) : null;
-    }
-    guessedWord()
-    checkIfGameWon()
-  }else{
-    tts("Non ho capito, puoi ripetere?")
-  }
-};
-
-confirm.onstart= () => {
-  console.log("Confirm activated.");
-};
-
-confirm.onresult = (event) => {
-  const current = event.resultIndex;
-  const transcript = event.results[current][0].transcript;
-
-  confermapronunciata = transcript.replace(",", "")
-  confermapronunciata = confermapronunciata.toLowerCase().substring(0,2);
-
-  if (confermapronunciata == 'no'){
-    console.log("Hai detto no, la tua richiesta è stata eliminata")
-  }else if (confermapronunciata == 'sì' || confermapronunciata == 'se' || confermapronunciata == 'si' || confermapronunciata.substring(0,3) == 'see'  ){
-    document.getElementById(letterapronunciata.toLowerCase()).click()
-  }
-};
-
-confirm.onend = () => {
-  console.log("Confirm deactivated");
-};
-
-function startconfirm(){
-  confirm.start()
-}
-
 async function tts(message) {
   const speech = new SpeechSynthesisUtterance();
   const voices = speechSynthesis.getVoices();
-  speech.voice = voices[1];
+  speech.voice = voices[11];
   speech.volume = 2;
-  speech.rate = 0.9;
-  speech.pitch = 0.2; //not so deep
+  speech.rate = 1.0;
+  speech.pitch = 0.8; //not so deep
   speech.text = message;
   window.speechSynthesis.speak(speech);
 }
@@ -376,9 +253,11 @@ function audioMode(){
   if (audioOn == true){
     audioOn = false;
     document.getElementById('btnAudioOn').src = 'images/soundoff.png'
+    document.getElementById('btnAudioOn').alt = 'Suoni disattivati'
   }else{
     audioOn = true;
     document.getElementById('btnAudioOn').src = 'images/soundon.png'
+    document.getElementById('btnAudioOn').alt = 'Suoni attivati'
   }
 }
 
@@ -386,17 +265,19 @@ function blindMode(){
   if (blindOn == true){
     blindOn = false;
     document.getElementById('btnBlindMode').src = 'images/blindoff.png'
-    document.getElementById('btnVoice').setAttribute('disabled', true)
+    document.getElementById('btnBlindMode').alt = 'modalità non vedenti disattivata'
+
   }else{
     blindOn = true;
     document.getElementById('btnBlindMode').src = 'images/blindon.png'
-    document.getElementById('btnVoice').removeAttribute("disabled");
+    document.getElementById('btnBlindMode').alt = 'modalità non vedenti attiva'
     remindClue();
   }
 }
 
 function remindError(){
   if (blindOn == true) {
+    window.speechSynthesis.cancel()
     if (mistakes < 5) {
       tts("Puoi fare ancora " + (6 - parseInt(mistakes)) + " errori")
     } else {
@@ -410,3 +291,6 @@ function remindClue(){
     tts(clue);
   }
 }
+
+
+
